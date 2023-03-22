@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8478F2A329C8C6B3009FFB6C /* UtilityViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8478F2A229C8C6B3009FFB6C /* UtilityViews.swift */; };
+		84913EFB29CB7F5200B5C590 /* PaletteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84913EFA29CB7F5200B5C590 /* PaletteStore.swift */; };
 		84AD5CB829C73BDA00010B56 /* EmojiArtStanfordApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AD5CB729C73BDA00010B56 /* EmojiArtStanfordApp.swift */; };
 		84AD5CBA29C73BDA00010B56 /* EmojiArtDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AD5CB929C73BDA00010B56 /* EmojiArtDocumentView.swift */; };
 		84AD5CBC29C73BDB00010B56 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84AD5CBB29C73BDB00010B56 /* Assets.xcassets */; };
@@ -20,6 +21,7 @@
 
 /* Begin PBXFileReference section */
 		8478F2A229C8C6B3009FFB6C /* UtilityViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UtilityViews.swift; sourceTree = "<group>"; };
+		84913EFA29CB7F5200B5C590 /* PaletteStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaletteStore.swift; sourceTree = "<group>"; };
 		84AD5CB429C73BDA00010B56 /* EmojiArtStanford.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EmojiArtStanford.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		84AD5CB729C73BDA00010B56 /* EmojiArtStanfordApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiArtStanfordApp.swift; sourceTree = "<group>"; };
 		84AD5CB929C73BDA00010B56 /* EmojiArtDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiArtDocumentView.swift; sourceTree = "<group>"; };
@@ -65,6 +67,7 @@
 				84AD5CB929C73BDA00010B56 /* EmojiArtDocumentView.swift */,
 				84AD5CC529C73BFC00010B56 /* EmojiArtModel.swift */,
 				84AD5CC929C76D5E00010B56 /* EmojiArtDocument.swift */,
+				84913EFA29CB7F5200B5C590 /* PaletteStore.swift */,
 				84AD5CCB29C7744D00010B56 /* UtilityExtensions.swift */,
 				8478F2A229C8C6B3009FFB6C /* UtilityViews.swift */,
 				84AD5CC729C76ADE00010B56 /* EmojiArtModel.Background.swift */,
@@ -156,6 +159,7 @@
 				84AD5CB829C73BDA00010B56 /* EmojiArtStanfordApp.swift in Sources */,
 				8478F2A329C8C6B3009FFB6C /* UtilityViews.swift in Sources */,
 				84AD5CCC29C7744D00010B56 /* UtilityExtensions.swift in Sources */,
+				84913EFB29CB7F5200B5C590 /* PaletteStore.swift in Sources */,
 				84AD5CCA29C76D5E00010B56 /* EmojiArtDocument.swift in Sources */,
 				84AD5CC629C73BFC00010B56 /* EmojiArtModel.swift in Sources */,
 				84AD5CC829C76ADE00010B56 /* EmojiArtModel.Background.swift in Sources */,
