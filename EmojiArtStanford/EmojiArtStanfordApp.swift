@@ -9,10 +9,14 @@ import SwiftUI
 
 @main
 struct EmojiArtStanfordApp: App {
-    let document =  EmojiArtDocument()
+    //разобраться кто/что занчит
+    //это обьявление 2х ViewModel
+    @StateObject var document =  EmojiArtDocument()
+    @StateObject var paletteStore = PaletteStore(named: "Default")
     var body: some Scene {
         WindowGroup {
             EmojiArtDocumentView(document: document)
+                .environmentObject(paletteStore)
         }
     }
 }
