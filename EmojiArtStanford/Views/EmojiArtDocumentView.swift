@@ -43,8 +43,33 @@ struct EmojiArtDocumentView: View {
                 return drop(providers: providers, at: location, in: geometry)
             }
             .gesture(panGasture().simultaneously(with: zoomGasture()))
+            //разобраться с новым способом вывода alert
+           // .alert(<#T##title: Text##Text#>, isPresented: <#T##Binding<Bool>#>, actions: <#T##() -> View#>, message: <#T##() -> View#>) { }
+            .alert(item: $alertToShow) { alertToShow in
+                alertToShow.alert()
+            }
+            .onChange(of: document.backgroundImageFetchStatus) { status in
+                switch status {
+                case .failed(let url):
+                    showBackgoundImageFailedAlert(url)
+                default:
+                    break
+                }
+            }
         }
     }
+   // @State private var fetchFailed = false
+    @State private var alertToShow: IdentifiableAlert?
+    
+    private func showBackgoundImageFailedAlert(_ url: URL) {
+        alertToShow = IdentifiableAlert(id: "fetch failed: " + url.absoluteString, alert: {
+            Alert(
+                title: Text("Background Image Fetch"),
+                  message: Text("Couldn't load from \(url)."),
+                  dismissButton: .default(Text("Ok")))
+        })
+    }
+    
     
     private func drop(providers: [NSItemProvider], at location: CGPoint, in geometry: GeometryProxy)->Bool{
         var found = providers.loadObjects(ofType: URL.self){ url in

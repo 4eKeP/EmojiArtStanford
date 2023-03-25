@@ -38,12 +38,21 @@ struct PaletteChooser: View {
     
     @ViewBuilder
     var contextMenu: some View {
+        AnimatedActionButton(title: "Edit", systemImage: "pencil") {
+            paletteToEdit = store.palette(at: chosenPaletteIndex)
+           // editing = true
+        }
         AnimatedActionButton(title: "New", systemImage: "plus") {
             store.insertPalette(named: "New", emojis: "", at: chosenPaletteIndex)
+            paletteToEdit = store.palette(at: chosenPaletteIndex)
+           // editing = true
         }
         AnimatedActionButton(title: "Delete", systemImage: "minus.circle") {
             //chosenPaletteIndex =, для того что бы при удалении последнего элемента в последовательности переходил на другу последовательность
             chosenPaletteIndex = store.removePalette(at: chosenPaletteIndex)
+        }
+        AnimatedActionButton(title: "Manager", systemImage: "slider.vertical.3") {
+            managing = true
         }
         goToMenu
     }
@@ -72,7 +81,24 @@ struct PaletteChooser: View {
         //что бы rollTransition работала надо сделать каждый palette уникальным для этого и добавляеться .id
         .id(palette.id)
         .transition(rollTransition)
+        // 2 способа появления окна редактирования с помощью Bool и Optional, предпочтителен Optional
+//        .popover(isPresented: $editing) {
+//            PaletteEditor(palette: $store.palettes[chosenPaletteIndex])
+//        }
+        .popover(item: $paletteToEdit) { palette in
+            // $ binding это get и set значение
+            //palette в коллекции используеться как идентификатор, как работает palettes[palette] смотреть расшерение для rangeReplaceable collection в файле UtilityExtensions
+            PaletteEditor(palette: $store.palettes[palette])
+        }
+        .sheet(isPresented: $managing) {
+            PaletteManager()
+        }
     }
+    
+   // @State private var editing = false
+    @State private var managing = false
+    @State private var paletteToEdit: Palette?
+    
     var rollTransition: AnyTransition {
         AnyTransition.asymmetric(
             insertion: .offset(x: 0, y: emojiFontSize),
