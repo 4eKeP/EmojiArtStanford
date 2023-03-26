@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 class EmojiArtDocument: ObservableObject {
   
@@ -79,12 +80,52 @@ class EmojiArtDocument: ObservableObject {
         case failed(URL)
     }
     
+    private var backgroundImageFetchCancellacle: AnyCancellable?
+    
     private func fetchBackgroundImageDataIfNecessary() {
         backgroundImage = nil
         switch emojiArt.background{
         case .url(let url):
             //fetch data
             backgroundImageFetchStatus = .fetching
+            //останавливает старые запросы, если новый появился
+            backgroundImageFetchCancellacle?.cancel()
+            //лучше использовать URLSession
+            let session = URLSession.shared
+            let publisher = session.dataTaskPublisher(for: url)
+                .map{(data, urlResponse) in UIImage(data: data)}
+                .replaceError(with: nil)
+                .receive(on: DispatchQueue.main)
+            /*
+            // для того что бы передача данных не закончилась после выполнения функции надо создать переменную типа AnyCancellable?(нельзя применить без import Combine)
+            // польза в том что при закрытии приложения или исчезновении self и backgroundImageFetchCancellacle, цикл автоматически перестанет ждать ответа
+             */
+         backgroundImageFetchCancellacle = publisher
+            /*
+        // .assign не подходит так как невозможно сменить статус BackgroundImageFetchStatus
+        //         .assign(to: \EmojiArtDocument.backgroundImage, on: self)
+            */
+            /*
+            // если .replaceError(with: nil) не подходит к условиям реализации (например считывание кода ошибки) то можно использовать форму .sink приведенную ниже
+             .sink(receiveCompletion: {result in
+                 switch result {
+                 case .finished:
+                     print("success!")
+                 case .failure(let error):
+                     print("failed: error  =\(error)")
+                 }
+             },
+                   receiveValue: { [weak self] image in
+                 self?.backgroundImage = image
+                 self?.backgroundImageFetchStatus = (image != nil) ? .idle : .failed(url)
+             })
+             */
+             .sink { [weak self] image in
+                 self?.backgroundImage = image
+                 self?.backgroundImageFetchStatus = (image != nil) ? .idle : .failed(url)
+             }
+            // или "ручным" способом ниже, но лучше использовать URLSession
+            /*
             DispatchQueue.global(qos: .userInitiated).async {
                 let imageData = try? Data(contentsOf: url)
                 DispatchQueue.main.async { [weak self] in
@@ -99,6 +140,7 @@ class EmojiArtDocument: ObservableObject {
                     }
                 }
             }
+             */
         case .imageData(let data):
             backgroundImage = UIImage(data: data)
         case .blank:
