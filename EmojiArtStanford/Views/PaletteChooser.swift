@@ -12,8 +12,8 @@ struct PaletteChooser: View {
     var emojiFont: Font {.system(size: emojiFontSize)}
     
     @EnvironmentObject var store: PaletteStore
-    
-    @State private var chosenPaletteIndex = 0
+    //@SceneStorage позволяет сохранять данные между перезагрузками приложения в данном случае сохраняеться выбранный набор
+    @SceneStorage("PaletteChooser.chosenPaletteIndex") private var chosenPaletteIndex = 0
     
     var body: some View {
         HStack{

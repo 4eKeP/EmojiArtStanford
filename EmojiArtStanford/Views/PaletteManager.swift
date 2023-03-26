@@ -42,8 +42,11 @@ struct PaletteManager: View {
             .toolbar {
                 ToolbarItem{ EditButton() }
                 ToolbarItem(placement: .navigationBarLeading) {
-                    if isPresented,
-                        UIDevice.current.userInterfaceIdiom != .pad  {
+                    if isPresented
+                    //строка для ограничения платформ
+                        //,
+                    //    UIDevice.current.userInterfaceIdiom != .pad
+                    {
                         Button("Close"){
                             dismiss()
                         }

@@ -11,11 +11,13 @@ import SwiftUI
 struct EmojiArtStanfordApp: App {
     //разобраться кто/что занчит
     //это обьявление 2х ViewModel
-    @StateObject var document =  EmojiArtDocument()
+   // @StateObject var document =  EmojiArtDocument()
     @StateObject var paletteStore = PaletteStore(named: "Default")
     var body: some Scene {
-        WindowGroup {
-            EmojiArtDocumentView(document: document)
+        //код для старого способа сохранения
+       // WindowGroup
+        DocumentGroup(newDocument: {EmojiArtDocument()}) { config in
+            EmojiArtDocumentView(document: config.document)
                 .environmentObject(paletteStore)
         }
     }

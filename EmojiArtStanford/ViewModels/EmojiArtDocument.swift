@@ -7,17 +7,47 @@
 
 import SwiftUI
 import Combine
+import UniformTypeIdentifiers
 
-class EmojiArtDocument: ObservableObject {
+extension UTType {
+    static let emojiart = UTType(exportedAs: "EmojiArtStanford.proj")
+}
+
+class EmojiArtDocument: ReferenceFileDocument {
+    
+    typealias Snapshot = Data
+    //что бы найти UTType необходимо импортировать UniformTypeIdentifiers
+    static var readableContentTypes = [UTType.emojiart]
+    static var writeableContentTypes = [UTType.emojiart]
+       
+    func snapshot(contentType: UTType) throws -> Data {
+        try emojiArt.json()
+    }
+    
+    func fileWrapper(snapshot: Data, configuration: WriteConfiguration) throws -> FileWrapper {
+        FileWrapper(regularFileWithContents: snapshot)
+    }
+    
+    required init(configuration: ReadConfiguration) throws {
+        if let data = configuration.file.regularFileContents{
+            emojiArt = try EmojiArtModel(json: data)
+            fetchBackgroundImageDataIfNecessary()
+        }else{
+            throw CocoaError(.fileReadCorruptFile)
+        }
+    }
+    
   
     @Published private(set) var emojiArt: EmojiArtModel {
         didSet{
-            autosave()
+        //    autosave()
             if emojiArt.background != oldValue.background{
                 fetchBackgroundImageDataIfNecessary()
             }
         }
     }
+    //код для старого способа сохранения
+    /*
     private var autosaveTimer: Timer?
     private func schedualeAutosave () {
         autosaveTimer?.invalidate()
@@ -68,6 +98,12 @@ class EmojiArtDocument: ObservableObject {
             // emojiArt.addEmoji("🥴", at: (50,100), size: 40)
         }
     }
+    */
+    
+    init() {
+        emojiArt = EmojiArtModel()
+    }
+    
     var emojis: [EmojiArtModel.Emoji] {emojiArt.emojis}
     var background: EmojiArtModel.Background {emojiArt.background}
     
@@ -150,26 +186,43 @@ class EmojiArtDocument: ObservableObject {
     
     //MARK: - Intents
     
-    func setBackground(_ background: EmojiArtModel.Background) {
-        emojiArt.background = background
-        print("background set to \(background)")
-    }
-    func addEmoji(_ emoji: String, at location: (x: Int, y: Int), size: CGFloat) {
-        emojiArt.addEmoji(emoji, at: location, size: Int(size))
-    }
-    func moveEmoji(_ emoji: EmojiArtModel.Emoji, by offset: CGSize){
-        if let index = emojiArt.emojis.index(matching: emoji){
-            emojiArt.emojis[index].x += Int(offset.width)
-            emojiArt.emojis[index].y += Int(offset.height)
+    func setBackground(_ background: EmojiArtModel.Background, undoManager: UndoManager?) {
+        undoablyPerform(operation: "Set Background", with: undoManager){
+            emojiArt.background = background
         }
     }
-    func scaleEmoji(_ emoji: EmojiArtModel.Emoji, by scale: CGFloat){
+    func addEmoji(_ emoji: String, at location: (x: Int, y: Int), size: CGFloat, undoManager: UndoManager?) {
+        undoablyPerform(operation: "Add \(emoji)", with: undoManager){
+            emojiArt.addEmoji(emoji, at: location, size: Int(size))
+        }
+    }
+    func moveEmoji(_ emoji: EmojiArtModel.Emoji, by offset: CGSize, undoManager: UndoManager?){
+            if let index = emojiArt.emojis.index(matching: emoji){
+                undoablyPerform(operation: "Move", with: undoManager){
+                emojiArt.emojis[index].x += Int(offset.width)
+                emojiArt.emojis[index].y += Int(offset.height)
+            }
+        }
+    }
+    func scaleEmoji(_ emoji: EmojiArtModel.Emoji, by scale: CGFloat, undoManager: UndoManager?){
         if let index = emojiArt.emojis.index(matching: emoji){
-            emojiArt.emojis[index].size = Int((CGFloat(emojiArt.emojis[index].size) * scale).rounded(.toNearestOrAwayFromZero))
+            undoablyPerform(operation: "Scaling", with: undoManager){
+                emojiArt.emojis[index].size = Int((CGFloat(emojiArt.emojis[index].size) * scale).rounded(.toNearestOrAwayFromZero))
+            }
         }
     }
     
+    //MARK: - Undo
     
-    
-    
+    private func undoablyPerform(operation: String, with undoManager: UndoManager? = nil, doit: ()->Void){
+        let oldEmojiArt = emojiArt
+        doit()
+        undoManager?.registerUndo(withTarget: self) { myself in
+            //что бы реализовать redo необходимо добавить строку ниже
+            myself.undoablyPerform(operation: operation, with: undoManager) {
+                myself.emojiArt = oldEmojiArt
+            }
+        }
+        undoManager?.setActionName(operation)
+    }
 }
