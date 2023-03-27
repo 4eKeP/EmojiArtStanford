@@ -63,8 +63,6 @@ class PaletteStore: ObservableObject {
             print("bilt-in")
             insertPalette(named: "Vehicles", emojis: "🚌🚎🚗🚕🚙🚓🏎️🚑🚒🚐🛻🚚🚛🚜🦽🦼🩼🛴🚲🛵🏍️🛺")
             insertPalette(named: "Sports", emojis: "⚽️🏀🤿🥋🏂⛷️🪂🤸‍♀️🤺🧘‍♀️🏄‍♂️🏊‍♀️")
-        } else{
-            print("successfully loaded \(palettes)")
         }
     }
     

@@ -39,19 +39,10 @@ struct PaletteManager: View {
             }
             .navigationTitle("Manage Palettes")
             .navigationBarTitleDisplayMode(.inline)
+            //найти как убрать стандартную кнопку назад
+            .dismissable{ dismiss() }
             .toolbar {
                 ToolbarItem{ EditButton() }
-                ToolbarItem(placement: .navigationBarLeading) {
-                    if isPresented
-                    //строка для ограничения платформ
-                        //,
-                    //    UIDevice.current.userInterfaceIdiom != .pad
-                    {
-                        Button("Close"){
-                            dismiss()
-                        }
-                    }
-                }
             }
             //@Environment значения можно применять непосредственно к определенным View
             .environment(\.editMode, $editMode)

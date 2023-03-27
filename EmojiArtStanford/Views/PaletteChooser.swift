@@ -89,6 +89,7 @@ struct PaletteChooser: View {
             // $ binding это get и set значение
             //palette в коллекции используеться как идентификатор, как работает palettes[palette] смотреть расшерение для rangeReplaceable collection в файле UtilityExtensions
             PaletteEditor(palette: $store.palettes[palette])
+                .wrappedInNavigationViewToMakeDismissable {paletteToEdit = nil}
         }
         .sheet(isPresented: $managing) {
             PaletteManager()

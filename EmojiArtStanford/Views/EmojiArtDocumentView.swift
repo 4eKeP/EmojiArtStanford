@@ -48,7 +48,7 @@ struct EmojiArtDocumentView: View {
             }
             .gesture(panGasture().simultaneously(with: zoomGasture()))
             //разобраться с новым способом вывода alert
-           // .alert(<#T##title: Text##Text#>, isPresented: <#T##Binding<Bool>#>, actions: <#T##() -> View#>, message: <#T##() -> View#>) { }
+            // .alert(<#T##title: Text##Text#>, isPresented: <#T##Binding<Bool>#>, actions: <#T##() -> View#>, message: <#T##() -> View#>) { }
             .alert(item: $alertToShow) { alertToShow in
                 alertToShow.alert()
             }
@@ -66,11 +66,30 @@ struct EmojiArtDocumentView: View {
                 }
             }
             .toolbar {
-                UndoButton(undo: undoManager?.optionalUndoMenuItemTitle,
-                           redo: undoManager?.optionalRedoMenuItemTitle)
+                ToolbarItemGroup(placement: .bottomBar){
+                 
+                    AnimatedActionButton(title: "Paste Background", systemImage: "doc.on.clipboard") {
+                        pasteBackground()
+                    }
+                    if let undoManager = undoManager{
+                        if undoManager.canUndo{
+                            AnimatedActionButton(title: undoManager.undoActionName, systemImage: "arrow.uturn.backward") {
+                                undoManager.undo()
+                            }
+                        }
+                        if undoManager.canRedo{
+                            AnimatedActionButton(title: undoManager.redoActionName, systemImage: "arrow.uturn.forward") {
+                                undoManager.redo()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
+private func pasteBackground() {
+    
+}
     
     @State private var autoZoom = false
    // @State private var fetchFailed = false
