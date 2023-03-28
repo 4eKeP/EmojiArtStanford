@@ -59,10 +59,25 @@ struct AnimatedActionButton: View {
 // then any time you want to show an alert
 // just set alertToShow = IdentifiableAlert(id: "my alert") { Alert(title: ...) }
 // of course, the string identifier has to be unique for all your different kinds of alerts
-
+//переделать под новый формат вызова alert
 struct IdentifiableAlert: Identifiable {
     var id: String
     var alert: () -> Alert
+    
+    init(id: String, alert: @escaping ()-> Alert){
+        self.id = id
+        self.alert = alert
+    }
+    
+    init(id: String, title: String, message: String){
+        self.id = id
+        alert = {Alert(title: Text(title), message: Text(message), dismissButton: .default(Text("OK")))}
+    }
+    
+    init(title: String, message: String) {
+        self.id = title + message
+        alert = {Alert(title: Text(title), message: Text(message), dismissButton: .default(Text("OK")))}
+    }
 }
 
 // a button that does undo (preferred) or redo
@@ -120,6 +135,12 @@ extension UndoManager {
         canRedo ? redoMenuItemTitle : nil
     }
 }
+
+
+
+
+
+
 extension View {
     @ViewBuilder
     //функция либо возвращает NavigationView либо View в зависимости от устройства
@@ -148,5 +169,34 @@ extension View {
         
     }
     
+}
+//написать описание lecture 15(41:00)
+extension View{
+    func compactableToolbar<Content>(@ViewBuilder content: () -> Content) -> some View where Content: View {
+        self.toolbar {
+            content().modifier(CompacableIntoContextMenu())
+        }
+    }
+}
+
+struct CompacableIntoContextMenu: ViewModifier {
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    
+    var compact: Bool {horizontalSizeClass == .compact}
+    
+    func body(content: Content) -> some View {
+        if compact {
+            Button{
+                
+            }label: {
+                Image(systemName: "ellipsis.circle")
+            }
+            .contextMenu {
+                content
+            }
+        } else {
+            content
+        }
+    }
 }
 

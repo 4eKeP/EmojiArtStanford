@@ -26,10 +26,10 @@ struct EmojiArtDocumentView: View {
     var documentBody: some View {
         GeometryReader{geometry in
             ZStack{
-                Color.white.overlay(OptionalImage(uiImage: document.backgroundImage)
+                Color.white
+                    OptionalImage(uiImage: document.backgroundImage)
                     .scaleEffect(zoomScale)
                     .position(convertFromEMojiCoordinates((0,0), in: geometry))
-                )
                 .gesture(doubleTapToZoom(in: geometry.size))
                 if document.backgroundImageFetchStatus == .fetching {
                     ProgressView().scaleEffect(2)
@@ -65,12 +65,22 @@ struct EmojiArtDocumentView: View {
                     zoomToFit(image, in: geometry.size)
                 }
             }
-            .toolbar {
-                ToolbarItemGroup(placement: .bottomBar){
+            .compactableToolbar {
                  
                     AnimatedActionButton(title: "Paste Background", systemImage: "doc.on.clipboard") {
                         pasteBackground()
                     }
+                if Camera.isAvalible {
+                    AnimatedActionButton(title: "Take Photo", systemImage: "camera") {
+                        backgroundPicker = .camera
+                    }
+                }
+                if PhotoLibrary.isAvailable {
+                    AnimatedActionButton(title: "Search Photos", systemImage: "photo") {
+                        backgroundPicker = .library
+                    }
+                }
+                
                     if let undoManager = undoManager{
                         if undoManager.canUndo{
                             AnimatedActionButton(title: undoManager.undoActionName, systemImage: "arrow.uturn.backward") {
@@ -83,12 +93,44 @@ struct EmojiArtDocumentView: View {
                             }
                         }
                     }
+            }
+            .sheet(item: $backgroundPicker) { pickerType in
+                switch pickerType {
+                case .camera: Camera(handlePickedImage: {image in handlePickedBackground(image)})
+                case .library: PhotoLibrary(handlePickedImage: {image in handlePickedBackground(image)})
                 }
             }
         }
     }
-private func pasteBackground() {
     
+    func handlePickedBackground(_ image: UIImage?){
+        autoZoom = true
+        if let imageData = image?.jpegData(compressionQuality: 1.0) {
+            document.setBackground(.imageData(imageData), undoManager: undoManager)
+        }
+        backgroundPicker = nil
+    }
+    
+    @State private var backgroundPicker: BackgroundPickerType?
+    
+    //чтобы подписать enum под протокол Identifiable необходимо инициализировать id как "self"
+    enum BackgroundPickerType: Identifiable {
+        var id: BackgroundPickerType {self}
+        
+        case camera
+        case library
+        
+    }
+    
+private func pasteBackground() {
+    autoZoom = true
+    if let imageData = UIPasteboard.general.image?.jpegData(compressionQuality: 1.0) {
+        document.setBackground(.imageData(imageData), undoManager: undoManager)
+    }else if let url = UIPasteboard.general.url?.imageURL{
+        document.setBackground(.url(url), undoManager: undoManager)
+    }else{
+        alertToShow = IdentifiableAlert(title: "Paste Background", message: "There is no image currently on the pasteboard")
+    }
 }
     
     @State private var autoZoom = false
